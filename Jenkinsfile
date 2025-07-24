@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_ENV = 'sonar'  // Le nom du serveur Sonar configuré dans Jenkins (Manage Jenkins > SonarQube)
-        SONAR_TOKEN = credentials('sonar-token')  // Le token stocké dans Jenkins > Credentials
-        MAVEN_HOME = tool name: 'maven', type: 'maven'  // Nom de Maven dans Jenkins > Global Tool Configuration
+        SONARQUBE_ENV = 'sonar'                           // Nom du serveur Sonar dans Jenkins
+        SONAR_TOKEN = credentials('sonar-token')          // Token Sonar (stocké dans Jenkins Credentials)
+        MAVEN_HOME = tool name: 'maven', type: 'maven'    // Nom de Maven configuré dans Jenkins
     }
 
     stages {
@@ -14,17 +14,6 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/fanantenana1/salama_java.git'
             }
         }
-    stage('Tester le serveur Flask') {
-        steps {
-            sh '''
-                docker run -d -p 5000:5000 --name flask_test haaa012/monimagejava
-                sleep 5
-                curl http://localhost:5000/status
-                docker stop flask_test
-                docker rm flask_test
-            '''
-        }
-     }
 
         stage('Analyse SonarQube') {
             steps {
@@ -43,6 +32,26 @@ pipeline {
         stage('Construire l’image Docker') {
             steps {
                 sh 'docker build -t haaa012/monimagejava .'
+            }
+        }
+
+        stage('Tester le serveur Flask') {
+            steps {
+                sh '''
+                    docker run -d -p 5000:5000 --name flask_test haaa012/monimagejava
+                    echo "⏳ Attente du démarrage de Flask..."
+                    sleep 10
+
+                    echo "📋 Logs du conteneur:"
+                    docker logs flask_test
+
+                    echo "🔍 Test de l’API Flask:"
+                    curl --fail http://localhost:5000/status
+
+                    echo "✅ Test terminé avec succès !"
+                    docker stop flask_test
+                    docker rm flask_test
+                '''
             }
         }
 
