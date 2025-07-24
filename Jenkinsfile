@@ -14,6 +14,17 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/fanantenana1/salama_java.git'
             }
         }
+    stage('Tester le serveur Flask') {
+        steps {
+            sh '''
+                docker run -d -p 5000:5000 --name flask_test haaa012/monimagejava
+                sleep 5
+                curl http://localhost:5000/status
+                docker stop flask_test
+                docker rm flask_test
+            '''
+        }
+     }
 
         stage('Analyse SonarQube') {
             steps {
