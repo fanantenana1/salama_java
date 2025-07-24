@@ -2,13 +2,14 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_ENV = 'sonar'  // nom du serveur Sonar dans Jenkins
-        SONAR_TOKEN = credentials('sonar-token')
-        MAVEN_HOME = tool 'maven' // doit être configuré dans Jenkins (Manage Jenkins > Global Tool Configuration)
+        SONARQUBE_ENV = 'sonar'  // Le nom du serveur Sonar configuré dans Jenkins (Manage Jenkins > SonarQube)
+        SONAR_TOKEN = credentials('sonar-token')  // Le token stocké dans Jenkins > Credentials
+        MAVEN_HOME = tool name: 'maven', type: 'maven'  // Nom de Maven dans Jenkins > Global Tool Configuration
     }
 
     stages {
-        stage('Cloner le code') {
+
+        stage('Cloner le dépôt') {
             steps {
                 git branch: 'main', url: 'https://github.com/fanantenana1/salama_java.git'
             }
@@ -22,16 +23,21 @@ pipeline {
             }
         }
 
-        stage('Construire l’image Docker') {
+        stage('Build Maven') {
             steps {
-                sh 'docker build -t monimagejava .'
+                sh "${MAVEN_HOME}/bin/mvn clean package"
             }
         }
 
-        stage('Pousser sur DockerHub') {
+        stage('Construire l’image Docker') {
             steps {
-                withDockerRegistry([credentialsId: 'docker-hub-creds', url: '']) {
-                    sh 'docker tag monimagejava haaa012/monimagejava'
+                sh 'docker build -t haaa012/monimagejava .'
+            }
+        }
+
+        stage('Pousser vers Docker Hub') {
+            steps {
+                withDockerRegistry(credentialsId: 'docker-hub-creds', url: '') {
                     sh 'docker push haaa012/monimagejava'
                 }
             }
