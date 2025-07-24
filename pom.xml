@@ -7,7 +7,7 @@
 
     <groupId>com.example</groupId>
     <artifactId>salama-java</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
 
     <name>salama-java</name>
