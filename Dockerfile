@@ -1,4 +1,4 @@
-FROM openjdk:17
+FROM openjdk:17-jdk-slim-bullseye
 
 # Installer Python et pip
 RUN apt-get update && \
