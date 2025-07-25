@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: salama-java-deployment
+  labels:
+    app: salama-java
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: salama-java
+  template:
+    metadata:
+      labels:
+        app: salama-java
+    spec:
+      containers:
+      - name: salama-java-container
+        image: haaa012/monimagejava:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ENV
+          valueFrom:
+            configMapKeyRef:
+              name: salama-java-config
+              key: ENV
